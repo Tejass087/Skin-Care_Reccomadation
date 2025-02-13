@@ -1,0 +1,42 @@
+<!-- /templates/makeup.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Makeup Products</h1>
+    
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <form method="get" class="grid md:grid-cols-3 gap-4">
+            {% for field in form %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                {{ field.as_widget|addclass:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500" }}
+            </div>
+            {% endfor %}
+            <div class="md:col-span-3">
+                <button type="submit" class="bg-pink-500 text-white px-4 py-2 rounded-md hover:bg-pink-600">Filter Products</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+        {% for product in products %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-4">
+                <h2 class="text-xl font-semibold text-gray-800">{{ product.name }}</h2>
+                <p class="text-gray-600">{{ product.brand }}</p>
+                <p class="text-pink-500 font-semibold mt-2">{{ product.price }}</p>
+                <div class="flex items-center mt-2">
+                    <span class="text-yellow-400">★</span>
+                    <span class="ml-1 text-gray-600">{{ product.rank }}</span>
+                </div>
+                <div class="mt-4">
+                    <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700">{{ product.skin_type }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

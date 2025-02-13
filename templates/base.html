@@ -1,0 +1,42 @@
+<!-- /templates/base.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Beauty Recommender{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <!-- Change this line -->
+                        <a href="{% url 'products:home' %}" class="text-xl font-bold text-pink-600">Beauty Recommender</a>
+                    </div>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8">
+                        <a href="{% url 'skincare:index' %}" class="inline-flex items-center px-1 pt-1 text-gray-700 hover:text-pink-600">Skincare</a>
+                        <a href="{% url 'makeup:index' %}" class="inline-flex items-center px-1 pt-1 text-gray-700 hover:text-pink-600">Makeup</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-7xl mx-auto py-6 px-4">
+            <p class="text-center text-gray-500">© 2024 Beauty Recommender. Final Year Project.</p>
+        </div>
+    </footer>
+</body>
+</html>

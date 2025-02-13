@@ -1,0 +1,42 @@
+<!-- /templates/home.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Home - Beauty Recommender{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-12">
+    <div class="text-center">
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-8">
+            Find Your Perfect Beauty Products
+        </h1>
+        <p class="text-xl text-gray-500 mb-12">
+            Personalized recommendations based on your skin type and preferences
+        </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <!-- Skincare Card -->
+        <a href="{% url 'skincare:index' %}" class="bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300">
+            <div class="p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Skincare</h2>
+                <p class="text-gray-600 mb-4">
+                    Discover skincare products tailored to your skin type and concerns.
+                </p>
+                <span class="text-pink-600 font-semibold">Explore Skincare →</span>
+            </div>
+        </a>
+
+        <!-- Makeup Card -->
+        <a href="{% url 'makeup:index' %}" class="bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300">
+            <div class="p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Makeup</h2>
+                <p class="text-gray-600 mb-4">
+                    Find makeup products that match your preferences and skin type.
+                </p>
+                <span class="text-pink-600 font-semibold">Explore Makeup →</span>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

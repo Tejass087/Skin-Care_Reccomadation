@@ -1,0 +1,64 @@
+<!-- /templates/skincare/index.html -->
+{% extends 'base.html' %}
+
+{% block title %}Skincare Recommendations{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Skincare Recommendations</h1>
+    
+    <!-- Filter Form -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <form method="get" class="space-y-6">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        {{ form.skin_type.label }}
+                    </label>
+                    {{ form.skin_type }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        {{ form.concern.label }}
+                    </label>
+                    {{ form.concern }}
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-pink-600 text-white px-6 py-2 rounded-md hover:bg-pink-700">
+                    Find Products
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="grid md:grid-cols-3 gap-6">
+        {% for product in products %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            {% if product.product_pic %}
+            <img src="{{ product.product_pic }}" alt="{{ product.Product }}" class="w-full h-48 object-cover">
+            {% endif %}
+            <div class="p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-2">{{ product.Product }}</h2>
+                <div class="space-y-2">
+                    <span class="inline-block bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-700">
+                        {{ product.Skin_type }}
+                    </span>
+                    <span class="inline-block bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-700">
+                        {{ product.Concern }}
+                    </span>
+                </div>
+                <a href="{{ product.product_url }}" target="_blank" class="mt-4 inline-block text-pink-600 hover:text-pink-700">
+                    View Product →
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-3 text-center py-12">
+            <p class="text-gray-500">No products found matching your criteria.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
