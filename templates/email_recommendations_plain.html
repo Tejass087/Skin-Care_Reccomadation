@@ -1,0 +1,67 @@
+<!-- Create a new file templates/email_recommendations_plain.html -->
+Your Beauty Product Recommendations
+==================================
+
+Your Skin Analysis:
+- Skin Type: {{ skin_type|title }}
+- Skin Tone: {{ skin_tone }}
+- Acne Level: {{ acne_level }}
+
+{% if makeup_recommendations %}
+MAKEUP RECOMMENDATIONS
+==================================
+{% for product in makeup_recommendations %}
+{{ product.name }}
+By {{ product.brand }}
+For {{ product.skin_type }} skin
+{% if product.concern %}Concerns: {{ product.concern|join:", " }}{% endif %}
+Price: ${{ product.price }}
+View Product: {{ product.url }}
+
+{% endfor %}
+{% endif %}
+
+SKINCARE RECOMMENDATIONS
+==================================
+
+{% if cleanser_recommendations %}
+CLEANSERS:
+{% for product in cleanser_recommendations %}
+{{ product.name }}
+By {{ product.brand }}
+For {{ product.skin_type }} skin
+{% if product.concern %}Concerns: {{ product.concern|join:", " }}{% endif %}
+Price: ${{ product.price }}
+View Product: {{ product.url }}
+
+{% endfor %}
+{% endif %}
+
+{% if moisturizer_recommendations %}
+MOISTURIZERS:
+{% for product in moisturizer_recommendations %}
+{{ product.name }}
+By {{ product.brand }}
+For {{ product.skin_type }} skin
+{% if product.concern %}Concerns: {{ product.concern|join:", " }}{% endif %}
+Price: ${{ product.price }}
+View Product: {{ product.url }}
+
+{% endfor %}
+{% endif %}
+
+{% if serum_recommendations %}
+TREATMENTS:
+{% for product in serum_recommendations %}
+{{ product.name }}
+By {{ product.brand }}
+For {{ product.skin_type }} skin
+{% if product.concern %}Concerns: {{ product.concern|join:", " }}{% endif %}
+Price: ${{ product.price }}
+View Product: {{ product.url }}
+
+{% endfor %}
+{% endif %}
+
+This email was sent to you based on your request from our Beauty Recommender website.
+© {% now "Y" %} Beauty Recommender. All rights reserved.

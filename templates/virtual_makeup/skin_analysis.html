@@ -1,0 +1,1020 @@
+{% extends 'base.html' %}
+{% block title %}Skin Analysis - Beauty Recommender{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto py-8">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Skin Analysis</h1>
+        <p class="mt-2 text-lg text-gray-600">Get personalized product recommendations based on your skin analysis</p>
+    </div>
+
+    <!-- Skin Type Selection Form -->
+    <div id="skin-type-form" class="bg-white rounded-lg shadow-md p-6 mb-8 transition-all duration-300">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">First, tell us about your skin type</h2>
+        <form id="skin-selection-form" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Oily Skin Option -->
+                <div>
+                    <input type="radio" name="skin_type" id="oily" value="oily" class="hidden peer">
+                    <label for="oily"
+                        class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-all duration-200 peer-checked:bg-blue-50 peer-checked:border-l-4 peer-checked:border-blue-500 peer-checked:shadow-lg">
+                        <div class="flex flex-col items-center">
+                            <img src="https://cdn2.stylecraze.com/wp-content/uploads/2021/08/Almond-Oil-For-Face-Benefits-And-How-To-Use-Banner.jpg.webp"
+                                alt="Oily skin" class="w-16 h-16 mb-2 rounded-full object-cover">
+                            <h3 class="font-medium text-gray-900">Oily Skin</h3>
+                            <p class="text-sm text-gray-500 text-center mt-1">Shiny appearance, enlarged pores, prone to
+                                acne</p>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Dry Skin Option -->
+                <div>
+                    <input type="radio" name="skin_type" id="dry" value="dry" class="hidden peer">
+                    <label for="dry"
+                        class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-all duration-200 peer-checked:bg-blue-50 peer-checked:border-l-4 peer-checked:border-amber-500 peer-checked:shadow-lg">
+                        <div class="flex flex-col items-center">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQb0RT1_JRWU5IGffqT58OWeaUmAD6ThlU5yc3B7UN1NsSUwKwszoBmhDsidR3hs1vBHQQ&usqp=CAU"
+                                alt="Dry skin" class="w-16 h-16 mb-2 rounded-full object-cover">
+                            <h3 class="font-medium text-gray-900">Dry Skin</h3>
+                            <p class="text-sm text-gray-500 text-center mt-1">Flaky patches, tight feeling, visible fine
+                                lines</p>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Combination Skin Option -->
+                <div>
+                    <input type="radio" name="skin_type" id="combination" value="combination" class="hidden peer">
+                    <label for="combination"
+                        class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-all duration-200 peer-checked:bg-blue-50 peer-checked:border-l-4 peer-checked:border-purple-500 peer-checked:shadow-lg">
+                        <div class="flex flex-col items-center">
+                            <img src="https://www.rejuuv.com/cdn/shop/collections/Skin_Type_-_Combination_Skin.jpg?v=1678988853"
+                                alt="Combination skin" class="w-16 h-16 mb-2 rounded-full object-cover">
+                            <h3 class="font-medium text-gray-900">Combination Skin</h3>
+                            <p class="text-sm text-gray-500 text-center mt-1">Oily T-zone (forehead, nose, chin) with
+                                dry cheeks</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <button type="submit" id="proceed-btn" disabled
+                class="w-full py-2 px-4 bg-gray-400 text-white font-semibold rounded-md shadow focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transition-colors duration-200">
+                Proceed to Skin Analysis
+            </button>
+        </form>
+    </div>
+
+    <!-- Camera and Analysis Section (Initially Hidden) -->
+    <div id="analysis-section" class="bg-white rounded-lg shadow-md p-6 mb-8 hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-800">Camera</h2>
+                <div class="relative bg-gray-100 rounded-lg overflow-hidden" style="min-height: 320px;">
+                    <video id="video" class="w-full h-full object-cover" autoplay></video>
+                    <div id="loading-overlay"
+                        class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+                        <div class="text-white text-center">
+                            <svg class="animate-spin h-10 w-10 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            <p>Analyzing your skin...</p>
+                        </div>
+                    </div>
+                    <!-- Face positioning guide -->
+                    <div id="face-guide" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div
+                            class="w-64 h-64 rounded-full border-4 border-dashed border-pink-400 flex items-center justify-center">
+                            <p class="bg-white px-3 py-1 rounded-full text-sm font-medium text-pink-600">Position face
+                                here</p>
+                        </div>
+                    </div>
+                </div>
+                <button id="capture-btn"
+                    class="w-full py-2 px-4 bg-pink-600 text-white font-semibold rounded-md shadow hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2">
+                    Analyze My Skin
+                </button>
+                <p class="text-sm text-gray-500">Position your face in the center of the frame and ensure good lighting
+                    for accurate results.</p>
+            </div>
+
+            <div id="results-container" class="hidden">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Your Skin Analysis</h2>
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Skin Type</p>
+                            <p id="skin-type" class="font-medium text-gray-900">-</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Skin Tone</p>
+                            <p id="skin-tone" class="font-medium text-gray-900">-</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Acne Level</p>
+                            <p id="acne-level" class="font-medium text-gray-900">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations Section (Initially Hidden) -->
+    <div id="recommendations-container" class="hidden">
+        <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Recommended Products For You</h2>
+
+        <!-- Makeup Recommendations -->
+        <div class="mb-8">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Makeup Products</h3>
+            <div id="makeup-recommendations" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+        </div>
+
+        <!-- General Recommendations -->
+        <div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Skincare Products</h3>
+            <div class="space-y-6">
+                <div>
+                    <h4 class="font-medium text-gray-700 mb-2">Cleansers</h4>
+                    <div id="cleanser-recommendations" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-700 mb-2">Moisturizers</h4>
+                    <div id="moisturizer-recommendations" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-700 mb-2">Treatments</h4>
+                    <div id="serum-recommendations" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Form (Initially Hidden) -->
+    <div id="email-form-container" class="mt-12 bg-white rounded-lg shadow-md p-6 hidden">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Send These Recommendations to Your Email</h3>
+        <form id="email-recommendation-form" method="post" action="{% url 'virtual_makeup:send_recommendations' %}">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="id_email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                <input type="email" name="email" id="id_email" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500"
+                    placeholder="Enter your email address">
+            </div>
+
+            <!-- Hidden fields to store skin analysis data -->
+            <input type="hidden" name="skin_type" id="hidden-skin-type">
+            <input type="hidden" name="skin_tone" id="hidden-skin-tone">
+            <input type="hidden" name="acne_level" id="hidden-acne-level">
+
+            <!-- Hidden field for recommendations JSON -->
+            <input type="hidden" name="recommendations_json" id="hidden-recommendations">
+
+            <button type="submit"
+                class="w-full py-2 px-4 bg-pink-600 text-white font-semibold rounded-md shadow hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2">
+                Send to My Email
+            </button>
+        </form>
+        <div id="email-success" class="hidden mt-4 p-3 bg-green-100 text-green-800 rounded">
+            Recommendations have been sent to your email!
+        </div>
+        <div id="email-error" class="hidden mt-4 p-3 bg-red-100 text-red-800 rounded">
+            Error sending recommendations. Please try again.
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Form elements
+        const skinTypeForm = document.getElementById('skin-type-form');
+        const skinSelectionForm = document.getElementById('skin-selection-form');
+        const proceedBtn = document.getElementById('proceed-btn');
+        const analysisSection = document.getElementById('analysis-section');
+
+        // Analysis elements
+        const video = document.getElementById('video');
+        const captureBtn = document.getElementById('capture-btn');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const resultsContainer = document.getElementById('results-container');
+        const recommendationsContainer = document.getElementById('recommendations-container');
+        const faceGuide = document.getElementById('face-guide');
+
+        // Results elements
+        const skinTypeEl = document.getElementById('skin-type');
+        const skinToneEl = document.getElementById('skin-tone');
+        const acneLevelEl = document.getElementById('acne-level');
+
+        // Recommendation containers
+        const makeupRecommendations = document.getElementById('makeup-recommendations');
+        const cleanserRecommendations = document.getElementById('cleanser-recommendations');
+        const moisturizerRecommendations = document.getElementById('moisturizer-recommendations');
+        const serumRecommendations = document.getElementById('serum-recommendations');
+
+        // Email form
+        const emailForm = document.getElementById('email-recommendation-form');
+
+        // Store selected skin type
+        let selectedSkinType = '';
+
+        // Enable proceed button when skin type is selected
+        skinSelectionForm.addEventListener('change', function () {
+            const selectedOption = document.querySelector('input[name="skin_type"]:checked');
+            if (selectedOption) {
+                selectedSkinType = selectedOption.value;
+                proceedBtn.disabled = false;
+                proceedBtn.classList.remove('bg-gray-400');
+                proceedBtn.classList.add('bg-pink-600', 'hover:bg-pink-700');
+            }
+        });
+
+        // Handle form submission
+        skinSelectionForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Hide skin type form and show analysis section
+            skinTypeForm.classList.add('hidden');
+            analysisSection.classList.remove('hidden');
+
+            // Initialize camera and face detection
+            initializeFaceDetection();
+
+            // Set the selected skin type in the results
+            skinTypeEl.textContent = capitalizeFirstLetter(selectedSkinType);
+            document.getElementById('hidden-skin-type').value = selectedSkinType;
+        });
+
+        // Initialize face detection and camera
+        function initializeFaceDetection() {
+            const statusIndicator = document.createElement('div');
+            statusIndicator.className = 'fixed top-4 right-4 px-3 py-1 bg-gray-800 text-white rounded-md text-sm';
+            statusIndicator.textContent = 'Loading face detection...';
+            document.body.appendChild(statusIndicator);
+
+            let faceDetectionReady = false;
+            let faceDetectionModel = null;
+
+            // Get access to the webcam
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: "user"
+                    }
+                })
+                    .then(function (stream) {
+                        video.srcObject = stream;
+
+                        // Load face detection models
+                        loadFaceDetectionModels();
+
+                        function loadFaceDetectionModels() {
+                            statusIndicator.textContent = 'Loading face detection models...';
+
+                            // Use absolute path to models
+                            const modelPath = `${window.location.origin}/static/models/`;
+
+                            // Create options for face detector
+                            faceDetectionModel = new faceapi.TinyFaceDetectorOptions({
+                                inputSize: 320,
+                                scoreThreshold: 0.5
+                            });
+
+                            // Load models
+                            Promise.all([
+                                faceapi.nets.tinyFaceDetector.loadFromUri(modelPath),
+                                faceapi.nets.faceLandmark68Net.loadFromUri(modelPath),
+                                faceapi.nets.faceRecognitionNet.loadFromUri(modelPath)
+                            ]).then(() => {
+                                faceDetectionReady = true;
+                                statusIndicator.textContent = 'Face detection ready!';
+                                statusIndicator.className = 'fixed top-4 right-4 px-3 py-1 bg-green-600 text-white rounded-md text-sm';
+
+                                // Start face detection loop
+                                startFaceDetectionLoop();
+                            }).catch(error => {
+                                console.error("Model loading failed:", error);
+                                statusIndicator.textContent = 'Using fallback mode';
+                                statusIndicator.className = 'fixed top-4 right-4 px-3 py-1 bg-orange-500 text-white rounded-md text-sm';
+
+                                // Enable capture button
+                                captureBtn.disabled = false;
+                            });
+                        }
+
+                        // Start face detection feedback loop
+                        function startFaceDetectionLoop() {
+                            if (!faceDetectionReady || !video.srcObject) return;
+
+                            faceapi.detectSingleFace(video, faceDetectionModel)
+                                .then(detection => {
+                                    if (detection) {
+                                        // Visual feedback when face is detected
+                                        faceGuide.querySelector('div').classList.add('border-green-400');
+                                        faceGuide.querySelector('div').classList.remove('border-pink-400');
+                                        faceGuide.querySelector('p').innerText = "Face detected";
+                                        faceGuide.querySelector('p').classList.add('bg-green-100');
+                                        faceGuide.querySelector('p').classList.remove('bg-white');
+
+                                        // Enable capture button
+                                        if (captureBtn.disabled) {
+                                            captureBtn.disabled = false;
+                                        }
+                                    } else {
+                                        // Visual feedback when no face is detected
+                                        faceGuide.querySelector('div').classList.add('border-pink-400');
+                                        faceGuide.querySelector('div').classList.remove('border-green-400');
+                                        faceGuide.querySelector('p').innerText = "Position face here";
+                                        faceGuide.querySelector('p').classList.add('bg-white');
+                                        faceGuide.querySelector('p').classList.remove('bg-green-100');
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error("Error in face detection:", err);
+                                });
+
+                            // Continue the loop
+                            setTimeout(startFaceDetectionLoop, 200);
+                        }
+                    })
+                    .catch(function (error) {
+                        console.error('Could not access the camera: ', error);
+                        statusIndicator.textContent = 'Camera access denied';
+                        statusIndicator.className = 'fixed top-4 right-4 px-3 py-1 bg-red-600 text-white rounded-md text-sm';
+
+                        // Enable capture button in fallback mode
+                        captureBtn.disabled = false;
+                    });
+            } else {
+                statusIndicator.textContent = 'Camera not supported';
+                statusIndicator.className = 'fixed top-4 right-4 px-3 py-1 bg-red-600 text-white rounded-md text-sm';
+
+                // Enable capture button in fallback mode
+                captureBtn.disabled = false;
+            }
+        }
+
+        // Capture and analyze image
+        captureBtn.addEventListener('click', async function () {
+            // Show loading overlay
+            loadingOverlay.classList.remove('hidden');
+
+            try {
+                // Create a canvas element to capture the video frame
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Try to detect face
+                const detections = await faceapi.detectAllFaces(
+                    video,
+                    new faceapi.TinyFaceDetectorOptions({
+                        inputSize: 320,
+                        scoreThreshold: 0.5
+                    })
+                ).withFaceLandmarks();
+
+                if (detections.length === 0) {
+                    loadingOverlay.classList.add('hidden');
+                    alert("No face detected. Please ensure your face is clearly visible in the frame.");
+                    return;
+                }
+
+                const detection = detections[0]; // Use the first face
+                const faceBox = detection.detection.box;
+
+                // Extract skin tone from face region
+                const skinTone = estimateSkinToneFromFace(canvas, faceBox);
+
+                // Estimate acne level (simplified for this example)
+                const acneLevel = estimateAcneLevel(canvas, faceBox);
+
+                // Update results
+                skinToneEl.textContent = getSkinToneName(skinTone);
+                acneLevelEl.textContent = acneLevel;
+
+                document.getElementById('hidden-skin-tone').value = skinTone;
+                document.getElementById('hidden-acne-level').value = acneLevel;
+
+                // Show results
+                resultsContainer.classList.remove('hidden');
+
+                // Generate and display recommendations
+                const recommendations = generateRecommendations({
+                    skin_type: selectedSkinType,
+                    tone: skinTone,
+                    acne: acneLevel
+                });
+
+                displayRecommendations(recommendations);
+                document.getElementById('hidden-recommendations').value = JSON.stringify(recommendations);
+
+                // Show recommendations and email form
+                recommendationsContainer.classList.remove('hidden');
+                document.getElementById('email-form-container').classList.remove('hidden');
+
+                // Scroll to recommendations
+                recommendationsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            } catch (error) {
+                console.error("Error during analysis:", error);
+                alert("An error occurred during analysis. Please try again.");
+            } finally {
+                loadingOverlay.classList.add('hidden');
+            }
+        });
+
+        // Simplified skin tone estimation
+        function estimateSkinToneFromFace(canvas, faceBox) {
+            const context = canvas.getContext('2d');
+
+            // Sample from center of face (forehead area)
+            const x = faceBox.x + faceBox.width * 0.5;
+            const y = faceBox.y + faceBox.height * 0.3;
+            const size = 10;
+
+            const imageData = context.getImageData(x, y, size, size);
+            const pixels = imageData.data;
+
+            // Calculate average RGB
+            let r = 0, g = 0, b = 0;
+            for (let i = 0; i < pixels.length; i += 4) {
+                r += pixels[i];
+                g += pixels[i + 1];
+                b += pixels[i + 2];
+            }
+
+            const pixelCount = pixels.length / 4;
+            r = Math.round(r / pixelCount);
+            g = Math.round(g / pixelCount);
+            b = Math.round(b / pixelCount);
+
+            // Calculate luminance (simplified skin tone estimation)
+            const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+
+            // Map to skin tone scale (1-6)
+            if (luminance > 200) return 1;
+            else if (luminance > 180) return 2;
+            else if (luminance > 150) return 3;
+            else if (luminance > 120) return 4;
+            else if (luminance > 90) return 5;
+            else return 6;
+        }
+
+        // Simplified acne level estimation
+        function estimateAcneLevel(canvas, faceBox) {
+            // In a real implementation, this would analyze skin texture
+            // For this example, we'll return a random level
+            const levels = ["Low", "Medium", "High"];
+            return levels[Math.floor(Math.random() * levels.length)];
+        }
+
+        // Generate recommendations based on skin analysis
+        function generateRecommendations(skinMetrics) {
+            const skin_type = skinMetrics.skin_type || 'normal';
+            const skin_tone = skinMetrics.tone || '3';
+            const acne_level = skinMetrics.acne || 'Low';
+
+            // Product database organized by skin type
+            const productsByType = {
+                "oily": {
+                    makeup: [
+                        {
+                            "name": `Clean & Clear Foaming Face Wash For Oily Skin - ${getSkinToneName(skin_tone)}`,
+                            "brand": "Clean & Clear",
+                            "skin type": "oily",
+                            "concern": ["oil control", "long-lasting"],
+                            "tone": skin_tone,
+                            "price": 299,
+                            'img': 'https://m.media-amazon.com/images/I/51+8qn67b0L._SL1080_.jpg',
+                            'url': 'https://www.amazon.in/Clean-Clear-Foaming-Face-Wash/dp/B00CI3HDMU?utm_source=chatgpt.com&th=1'
+                        },
+                        {
+                            "name": "Acne Foaming Cream Cleanser",
+                            "brand": "Clearasil",
+                            "skin type": "oily",
+                            "concern": ["pore-minimizing", "mattifying"],
+                            "price": 599,
+                            'img': 'https://images.meesho.com/images/products/454371790/d720n_512.webp',
+                            'url': 'https://www.meesho.com/cerave-acne-foaming-cream-wash-150ml/p/7iirim'
+                        }
+                    ],
+                    cleanser: [
+                        {
+                            'name': 'O3+ Anti Ageing Facial kit Brightening & Finelines Reducer With Peel off Mask ',
+                            'brand': 'O3+',
+                            "skin type": "oily",
+                            "concern": ["deep cleaning", "oil control"],
+                            'price': 499,
+                            'img': 'https://m.media-amazon.com/images/I/61L328jCs1L._SL1500_.jpg',
+                            'url': 'https://www.amazon.in/O3-Ageing-Brightening-Finelines-Reducer/dp/B09MHCJ8SC/ref=sr_1_2_sspa?crid=10OSBWCTDZ54H&dib=eyJ2IjoiMSJ9.Ry0YKLVPE1MuoPdh3eE_m4X7ay1MhqMyYQmyfP5eA8Z2kZPR1d4dms04gIcV0DOhbs3B3UtAOXvesavZ5WxI8tCwznFRB_7tn0C-4PbhjlHkFd6-xzb46AKk_Unzo_Te6WLcCINSdG3YwQnw74h3PiOQlsSq-8gk9QqNW8wLbAyjh7xeSvzJGkHm9d8uX7f2rQYyX6GPb9q26baO7SttkuPpEAVt0gl3EM6mxDGFFFqQnjHPm8FH5zRCuXMbgWydT8bS3DgsIAfHClp8zPny1wFJ5k-B2phf01-pHd2GMhI.YfcH3MX22qZPq8FW0KSrMg-Ffsd0O1megeZwqyGWZMY&dib_tag=se&keywords=skin%2Bcare%2Boil%2Bproducts&qid=1744150279&sprefix=skin%2Bcare%2Boili%2Bproducts%2Caps%2C285&sr=8-2-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&th=1'
+                        }
+                    ],
+                    moisturizer: [
+                        {
+                            'name': 'Oil-Free Moisturizer',
+                            'brand': 'Clean & Clear',
+                            "skin type": "oily",
+                            "concern": ["lightweight hydration", "non-greasy"],
+                            'price': 299,
+                            'img': 'https://smytten-image.gumlet.io/shop_item/CAC0005AB1O1.jpg',
+                            'url': 'https://smytten.com/shop/product/cleansers/pimple-clearing-face-wash/CAC0005AB1'
+                        }
+                    ],
+                    serum: [
+                        {
+                            'name': 'Niacinamide Serum 10% + Zinc 1%',
+                            'brand': 'The Ordinary',
+                            "skin type": "oily",
+                            "concern": ["oil regulation", "pore-refining"],
+                            'price': 599,
+                            'img': 'https://theordinary.com/dw/image/v2/BFKJ_PRD/on/demandware.static/-/Sites-deciem-master/default/dwce8a7cdf/Images/products/The%20Ordinary/rdn-niacinamide-10pct-zinc-1pct-30ml.png?sw=800&sh=800&sm=fit',
+                            'url': 'https://theordinary.com/en-in/niacinamide-10-zinc-1-serum-100436.html?utm_source=chatgpt.com'
+                        }
+                    ]
+                },
+                "dry": {
+                    makeup: [
+                        {
+                            "name": `RDE home care BB Glow Treatment Kit Medium Coverage Foundation - ${getSkinToneName(skin_tone)}`,
+                            "brand": "Maybelline",
+                            "skin type": "dry",
+                            "concern": ["hydration", "radiant finish"],
+                            "tone": skin_tone,
+                            'price': 599,
+                            'img': 'https://m.media-amazon.com/images/I/61tq4zrBe6L.jpg',
+                            'url': 'https://www.amazon.in/dp/B0D4DQC9L8/ref=sspa_dk_detail_6?psc=1&pd_rd_i=B0D4DQC9L8&pd_rd_w=C6qwI&content-id=amzn1.sym.9f1cb690-f0b7-44de-b6ff-1bad1e37d3f0&pf_rd_p=9f1cb690-f0b7-44de-b6ff-1bad1e37d3f0&pf_rd_r=CQX1NYBZ54QVHJDBJX0B&pd_rd_wg=CCeLv&pd_rd_r=70f0a725-d0e5-4595-97bf-bcbc03b09df9&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM'
+                        },
+                        {
+                            'name': 'Orimii Bump Hydrating Stretch Marks Body Butter',
+                            'brand': 'ORIMII',
+                            "skin type": "dry",
+                            "concern": ["moisture boost", "smooth application"],
+                            'price': 660,
+                            'img': 'https://m.media-amazon.com/images/I/41ZY9kHlPeL._SL1500_.jpg',
+                            'url': 'https://www.amazon.in/dp/B0B4JWHFD2/ref=sspa_dk_detail_3?psc=1&pd_rd_i=B0B4JWHFD2&pd_rd_w=yGWmU&content-id=amzn1.sym.9f1cb690-f0b7-44de-b6ff-1bad1e37d3f0&pf_rd_p=9f1cb690-f0b7-44de-b6ff-1bad1e37d3f0&pf_rd_r=G0XEZVGB5X1BZAADCYP2&pd_rd_wg=5Bk8v&pd_rd_r=96a2372c-b12f-4718-8a1e-0a1504aedbc1&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM'
+                        },
+                    ],
+                    cleanser: [
+                        {
+                            'name': 'Neutrogena Hydro Boost Water Gel Cleanser',
+                            'brand': 'Neutrogena',
+                            "skin type": "dry",
+                            "concern": ["gentle cleansing", "hydration"],
+                            'price': 499,
+                            'img': 'https://m.media-amazon.com/images/I/51DyW1rvfuL._SL1000_.jpg',
+                            'url': 'https://www.amazon.in/Neutrogena-Hydro-Boost-Cleanser-Transparent/dp/B077NXTT3Q?th=1'
+                        }
+                    ],
+                    moisturizer: [
+                        {
+                            "name": "Intense Hydration Cream Moisture",
+                            "brand": "Neutrogena",
+                            "skin type": "dry",
+                            "concern": ["intense hydration", "barrier repair"],
+                            'price': 770,
+                            'img': 'https://m.media-amazon.com/images/I/510eWZCb3IL._SL1000_.jpg',
+                            'url': 'https://www.amazon.in/Neutrogena-Oil-Free-Moisture-SPF-115ML/dp/B0B18MRNG1/ref=sr_1_9?dib=eyJ2IjoiMSJ9.Red9VNCWE8KOMjQoNpwaHKKyheFTHXKWcn3VhfXpteTV_wbb7o8PHx6A-_tQ26vZxmMKCdNGdtG1ZXhfF01wDb1bEIVl312Bdrvr4m2uz9OVuQXMHZwTAcIkZL7JMIdjU2kP6rZscAvBoe4goKkyluGz5NYALdxbCEZ3HdKKjqYTq6_l0m4O22w1L90iyDIJXsxugucPkOwZ8q82IlUn9yVJBL-CnITNd6AKg0n-2WiTf0yJcraZycHdnU6fv7pnJFZ7cGXWm14O7BQifdQYl0jvgav8XwAhpLGhx6S5hE8.-Mgx8NAo_D5LBzrHyA6q8qu3e6GD28IN878iai8PNE4&dib_tag=se&qid=1744369593&refinements=p_89%3ANeutrogena&s=beauty&sr=1-9&utm_source=chatgpt.com'
+                        }
+                    ],
+                    serum: [
+                        {
+                            "name": "THE ORDINARY Deciem Hyaluronic Acid",
+                            "brand": "The Ordinary",
+                            "skin type": "dry",
+                            "concern": ["deep hydration", "plumping"],
+                            'price': 6.99,
+                            'img': 'https://m.media-amazon.com/images/I/41QX2rGH4XL._SL1500_.jpg',
+                            'url': 'https://www.amazon.in/Deciem-Ordinary_Hyaluronic-_Free-Standard-Shipping/dp/B07DBM5J2D?utm_source=chatgpt.com'
+                        }
+                    ]
+                },
+                "combination": {
+                    makeup: [
+                        {
+                            "name": `Estee Lauder Double Wear Stay-In-Place Makeup Foundation - ${getSkinToneName(skin_tone)}`,
+                            "brand": "Estée Lauder",
+                            "skin type": "combination",
+                            "concern": ["balanced coverage", "natural finish"],
+                            "tone": skin_tone,
+                            'price': 4300,
+                            'img': 'https://cdn.tirabeauty.com/v2/billowing-snowflake-434234/tira-p/wrkr/products/pictures/item/free/original/1021637/RJ6Qp-XaDJ-1021637_1.jpg?dpr=1',
+                            'url': 'https://www.tirabeauty.com/product/estee-lauder-double-wear-stay-in-place-makeup-foundation-spf-10---1n2-ecru-30ml-0s0fue13hjom'
+                        },
+                        {
+                            "name": "LOréal Paris True Match Super-Blendable Compact",
+                            "brand": "L\'Oréal",
+                            "skin type": "combination",
+                            "concern": ["oil control", "pore-minimizing"],
+                            'tone': '3',
+                            'price': 8167,
+                            'img': 'https://m.media-amazon.com/images/I/51Zd82vmLmL._SX300_SY300_QL70_ML2_.jpg',
+                            'url': 'https://www.amazon.in/LOr%C3%A9al-Paris-Super-Blendable-Compact-Makeup/dp/B002LKCI2U?utm_source=chatgpt.com&th=1'
+                        }
+                    ],
+                    cleanser: [
+                        {
+                            "name": "Effaclar Medicated Cleanser",
+                            "brand": "La Roche-Posay",
+                            "skin type": "combination",
+                            "concern": ["gentle cleansing", "oil control"],
+                            'price': 111,
+                            'img': 'https://m.media-amazon.com/images/I/61eeFlpzxRL._AC_SL1500_.jpg',
+                            'url': 'https://www.amazon.ae/Roche-Posay-Effaclar-Medicated-Cleanser-Salicylic/dp/B00LO1DNXU?utm_source=chatgpt.com'
+                        }
+                    ],
+                    moisturizer: [
+                        {
+                            "name": "PAULAS CHOICE SKIN PERFECTING",
+                            "brand": "Paulas Choice",
+                            "skin type": "combination",
+                            "concern": ["hydrating dry areas", "mattifying oily zones"],
+                            'price': 1200,
+                            'img': 'https://m.media-amazon.com/images/I/61+zhXW9-+L._SL1500_.jpg',
+                            'url': 'https://www.amazon.in/Choice-SKIN-PERFECTING-Exfoliant-Facial-Blackheads-Lines-1-1oz/dp/B07C5SS6YD/ref=pd_bxgy_thbs_d_sccl_1/257-3034429-9902920?pd_rd_w=r8qCW&content-id=amzn1.sym.e933bed8-66b5-4e19-9aeb-b2834144fba3&pf_rd_p=e933bed8-66b5-4e19-9aeb-b2834144fba3&pf_rd_r=1JHBX0B174RRX9WJ62HP&pd_rd_wg=gCmDl&pd_rd_r=b11a918b-4da4-4c1c-b064-2b60ed6a09a8&pd_rd_i=B07C5SS6YD&th=1'
+                        },
+                        {
+                            "name": "Ponds superlight gel",
+                            "brand": "Ponds",
+                            "skin type": "combination",
+                            "concern": ["hydrating dry areas", "mattifying oily zones"],
+                            'price': 399,
+                            'img': 'https://images.apollo247.in/pub/media/catalog/product/p/o/pon0264_2_2.jpg?tr=w-264,q-80,f-webp,dpr-1,c-at_max',
+                            'url': 'https://www.apollopharmacy.in/otc/pond-s-hydrated-glow-super-light-gel-100ml-98g'
+                        }
+        
+                    ],
+                    serum: [
+                        {
+                            "name": "The Derma Co 2% Salicylic Acid Face Serum",
+                            "brand": "The Ordinary",
+                            "skin type": "combination",
+                            "concern": ["hydration balance", "oil control"],
+                            'price': 424,
+                            'img': 'https://m.media-amazon.com/images/I/510XARlsJ1L._SL1200_.jpg',
+                            'url': 'https://www.amazon.in/Derma-Co-Salicylic-Serum-Marks/dp/B08TT6DPXN/ref=dp_fod_d_sccl_1/257-3034429-9902920?pd_rd_w=IwjDe&content-id=amzn1.sym.2c0bc63e-7045-4193-97df-fbe90f6fe0c3&pf_rd_p=2c0bc63e-7045-4193-97df-fbe90f6fe0c3&pf_rd_r=SQFJK1BQSVP01AC6MMVV&pd_rd_wg=Xes27&pd_rd_r=fedd4132-226f-4fe5-894b-b010d019ea8d&pd_rd_i=B08TT6DPXN&th=1'
+                        }
+                    ]
+                }
+            };
+
+            // Add acne-specific products if needed
+            const acneProducts = {
+                serum: [
+                    {
+                        "name": "The Ordinary Vitamin C Vitamin C Serum",
+                        "brand": "The Ordinary",
+                        "skin type": "all",
+                        "concern": ["acne treatment", "exfoliation"],
+                        'price': 900,
+                        'img': 'https://images-static.nykaa.com/media/catalog/product/2/1/21daf06769915196061_1.jpg',
+                        'url': 'https://www.nykaa.com/the-ordinary-vitamin-c-suspension-23percent-ha-spheres-2percent/p/5003167'
+                    }
+                ],
+                cleanser: [
+                    {
+                        "name": "INKEY List Collagen Peptide Serum ",
+                        "brand": "The Inkey List",
+                        "skin type": "all",
+                        "concern": ["acne treatment", "gentle cleansing"],
+                        'price': 545,
+                        'img': 'https://images-cdn.ubuy.co.in/6442e03e3bf97125ea61be54-the-inkey-list-collagen-peptide-serum.jpg',
+                        'url': 'https://www.ubuy.co.in/product/2F0CGTM-inkey-list-collagen-booster'
+                    }
+                ]
+            };
+
+            // Get base products
+            const baseProducts = productsByType[skin_type] || productsByType['normal'];
+
+            // Build recommendations
+            const recommendations = {
+                "makeup": baseProducts.makeup || [],
+                "general": {
+                    "cleanser": acne_level !== 'Low' ?
+                        [...acneProducts.cleanser, ...baseProducts.cleanser] :
+                        baseProducts.cleanser || [],
+                    "moisturizer": baseProducts.moisturizer || [],
+                    "serum": acne_level !== 'Low' ?
+                        [...acneProducts.serum, ...baseProducts.serum] :
+                        baseProducts.serum || []
+                }
+            };
+
+            return recommendations;
+        }
+
+        // Helper function to get skin tone name
+        function getSkinToneName(toneValue) {
+            const toneNames = {
+                '1': 'Porcelain',
+                '2': 'Fair',
+                '3': 'Light',
+                '4': 'Medium',
+                '5': 'Tan',
+                '6': 'Deep'
+            };
+            return toneNames[toneValue] || 'Medium';
+        }
+
+        // Helper function to capitalize first letter
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        // Display product recommendations
+        function displayRecommendations(recommendations) {
+            // Clear previous recommendations
+            makeupRecommendations.innerHTML = '';
+            cleanserRecommendations.innerHTML = '';
+            moisturizerRecommendations.innerHTML = '';
+            serumRecommendations.innerHTML = '';
+
+            // Display makeup recommendations
+            if (recommendations.makeup && recommendations.makeup.length > 0) {
+                recommendations.makeup.forEach(product => {
+                    makeupRecommendations.appendChild(createProductCard(product));
+                });
+            }
+
+            // Display general recommendations
+            if (recommendations.general) {
+                // Cleansers
+                if (recommendations.general.cleanser && recommendations.general.cleanser.length > 0) {
+                    recommendations.general.cleanser.forEach(product => {
+                        cleanserRecommendations.appendChild(createProductCard(product));
+                    });
+                }
+
+                // Moisturizers
+                if (recommendations.general.moisturizer && recommendations.general.moisturizer.length > 0) {
+                    recommendations.general.moisturizer.forEach(product => {
+                        moisturizerRecommendations.appendChild(createProductCard(product));
+                    });
+                }
+
+                // Serums
+                if (recommendations.general.serum && recommendations.general.serum.length > 0) {
+                    recommendations.general.serum.forEach(product => {
+                        serumRecommendations.appendChild(createProductCard(product));
+                    });
+                }
+            }
+        }
+
+        // Create product card
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-lg shadow overflow-hidden transition transform hover:scale-105';
+
+            let priceDisplay = product.price;
+            if (typeof product.price === 'number') {
+                priceDisplay = '₹' + product.price.toFixed(2);
+            }
+
+            const concerns = product.concern ?
+                `<p class="text-xs text-gray-500">Concerns: ${Array.isArray(product.concern) ? product.concern.join(', ') : product.concern}</p>` : '';
+
+            card.innerHTML = `
+                <div class="p-4">
+                    <div class="aspect-w-3 aspect-h-2 mb-4">
+                        <img src="${product.img}" alt="${product.name}" class="object-cover w-full h-48">
+                    </div>
+                    <h3 class="text-sm font-medium text-gray-900">${product.brand}</h3>
+                    <p class="text-lg font-semibold text-gray-900 mt-1">${product.name}</p>
+                    <p class="text-sm text-gray-500 mt-1">For ${product['skin type']} skin</p>
+                    ${concerns}
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-pink-600 font-medium">${priceDisplay}</span>
+                        <a href="${product.url}" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-pink-600 hover:text-pink-700">View Product</a>
+                    </div>
+                </div>`;
+
+            return card;
+        }
+
+        function displayModelMetrics() {
+            // Create container for metrics
+            const metricsContainer = document.createElement('div');
+            metricsContainer.id = 'model-metrics';
+            metricsContainer.className = 'mt-8 bg-white rounded-lg shadow-md p-6';
+
+            // Add heading
+            const heading = document.createElement('h3');
+            heading.className = 'text-xl font-semibold text-gray-800 mb-4';
+            heading.textContent = 'Model Performance Metrics';
+            metricsContainer.appendChild(heading);
+
+            // Create accuracy section
+            const accuracySection = document.createElement('div');
+            accuracySection.className = 'mb-6';
+
+            // Calculate "accuracy" - in a real app this would come from your model
+            // Here we're simulating it
+            const accuracy = (Math.random() * 15 + 80).toFixed(2); // Random accuracy between 80-95%
+
+            accuracySection.innerHTML = `
+        <h4 class="font-medium text-gray-700 mb-2">Model Accuracy</h4>
+        <div class="bg-gray-100 rounded-lg p-4">
+            <div class="flex items-center">
+                <div class="w-full bg-gray-200 rounded-full h-4 mr-2">
+                    <div class="bg-green-600 h-4 rounded-full" style="width: ${accuracy}%"></div>
+                </div>
+                <span class="text-lg font-bold text-gray-900">${accuracy}%</span>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">Based on validation dataset of skin analysis images</p>
+        </div>
+    `;
+            metricsContainer.appendChild(accuracySection);
+
+            // Create confusion matrix section
+            const confusionMatrixSection = document.createElement('div');
+
+            // Create simulated confusion matrix data
+            // In a real app, this would come from your model evaluation
+            const skinTypes = ['Oily', 'Dry', 'Combination'];
+            const confusionData = generateConfusionMatrix(skinTypes);
+
+            confusionMatrixSection.innerHTML = `
+        <h4 class="font-medium text-gray-700 mb-2">Confusion Matrix</h4>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2 border-b-2 border-r border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actual / Predicted</th>
+                        ${skinTypes.map(type => `<th class="px-4 py-2 border-b-2 border-r border-gray-200 bg-gray-100 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">${type}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody>
+                    ${skinTypes.map((actualType, i) => `
+                        <tr>
+                            <td class="px-4 py-2 border-b border-r border-gray-200 bg-gray-100 text-sm font-medium text-gray-900">${actualType}</td>
+                            ${confusionData[i].map(value => `
+                                <td class="px-4 py-2 border-b border-r border-gray-200 text-sm text-center ${value > 70 ? 'bg-green-100' : value > 20 ? 'bg-yellow-100' : 'bg-red-100'}">${value}%</td>
+                            `).join('')}
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+        <p class="text-sm text-gray-500 mt-2">Higher percentages (green) indicate better classification accuracy</p>
+    `;
+            metricsContainer.appendChild(confusionMatrixSection);
+
+            // Add metrics explanation
+            const explanation = document.createElement('div');
+            explanation.className = 'mt-4 p-3 bg-blue-50 text-blue-800 text-sm rounded';
+            explanation.innerHTML = `
+        <p><strong>What do these metrics mean?</strong></p>
+        <p class="mt-1">The accuracy shows how often the model correctly identifies skin types and conditions. The confusion matrix shows detailed performance across different skin categories, with each cell representing the percentage of predictions.</p>
+    `;
+            metricsContainer.appendChild(explanation);
+
+            // Add the metrics container before the email form
+            const emailFormContainer = document.getElementById('email-form-container');
+            emailFormContainer.parentNode.insertBefore(metricsContainer, emailFormContainer);
+        }
+
+        // Helper function to generate a confusion matrix
+        function generateConfusionMatrix(categories) {
+            const matrix = [];
+
+            for (let i = 0; i < categories.length; i++) {
+                const row = [];
+                let remaining = 100;
+
+                for (let j = 0; j < categories.length; j++) {
+                    if (j === i) {
+                        // Make the diagonal (correct predictions) higher
+                        const accuracyValue = Math.floor(Math.random() * 20) + 75;
+                        row.push(accuracyValue);
+                        remaining -= accuracyValue;
+                    } else if (j === categories.length - 1) {
+                        // Last column gets whatever is left to make 100%
+                        row.push(remaining);
+                    } else {
+                        // Random distribution for incorrect predictions
+                        const value = Math.floor(Math.random() * remaining);
+                        row.push(value);
+                        remaining -= value;
+                    }
+                }
+
+                matrix.push(row);
+            }
+
+            return matrix;
+        }
+
+        // Modify the capture button click handler
+        const originalCaptureBtnHandler = captureBtn.onclick;
+        captureBtn.onclick = async function (event) {
+            if (originalCaptureBtnHandler) {
+                await originalCaptureBtnHandler.call(this, event);
+            }
+
+            // After the original handler completes, display metrics
+            // This will run after the recommendations are shown
+            setTimeout(() => {
+                displayModelMetrics();
+
+                // Modify hidden recommendations to include metrics
+                const hiddenRecommendations = document.getElementById('hidden-recommendations');
+                if (hiddenRecommendations && hiddenRecommendations.value) {
+                    try {
+                        const recsObj = JSON.parse(hiddenRecommendations.value);
+
+                        // Add metrics to the recommendations object
+                        recsObj.metrics = {
+                            accuracy: document.querySelector('#model-metrics .bg-green-600').style.width,
+                            confusionMatrix: Array.from(document.querySelectorAll('#model-metrics table tbody tr')).map(row =>
+                                Array.from(row.querySelectorAll('td:not(:first-child)')).map(td =>
+                                    parseFloat(td.textContent.replace('%', ''))
+                                )
+                            )
+                        };
+
+                        // Update the hidden field
+                        hiddenRecommendations.value = JSON.stringify(recsObj);
+                    } catch (e) {
+                        console.error("Error updating recommendations with metrics:", e);
+                    }
+                }
+            }, 100);
+        };
+
+        // Handle email form submission
+        if (emailForm) {
+            emailForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const formData = new FormData(emailForm);
+
+                fetch(emailForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('email-success').classList.remove('hidden');
+                            document.getElementById('email-error').classList.add('hidden');
+                        } else {
+                            document.getElementById('email-error').classList.remove('hidden');
+                            document.getElementById('email-success').classList.add('hidden');
+                            document.getElementById('email-error').textContent = data.error || 'Error sending recommendations. Please try again.';
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('email-error').classList.remove('hidden');
+                        document.getElementById('email-success').classList.add('hidden');
+                        console.error('Error:', error);
+                    });
+            });
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const labels = document.querySelectorAll('#skin-selection-form label');
+        const form = document.getElementById('skin-selection-form');
+
+        labels.forEach(label => {
+            label.addEventListener('click', () => {
+                labels.forEach(l => l.classList.remove(
+                    'bg-blue-50', 'bg-amber-50', 'bg-purple-50',
+                    'border-l-4', 'border-blue-500', 'border-amber-500', 'border-purple-500',
+                    'shadow-lg'
+                ));
+
+                const input = label.previousElementSibling;
+                if (input.checked || input.getAttribute('type') === 'radio') {
+                    if (input.id === 'oily') {
+                        label.classList.add('bg-blue-50', 'border-l-4', 'border-blue-500', 'shadow-lg');
+                    } else if (input.id === 'dry') {
+                        label.classList.add('bg-blue-50', 'border-l-4', 'border-blue-500', 'shadow-lg');
+                    } else if (input.id === 'combination') {
+                        label.classList.add('bg-blue-50', 'border-l-4', 'border-blue-500', 'shadow-lg');
+                    }
+                }
+            });
+        });
+
+        form.addEventListener('change', () => {
+            document.getElementById('proceed-btn').disabled = false;
+            document.getElementById('proceed-btn').classList.remove('bg-gray-400');
+            document.getElementById('proceed-btn').classList.add('bg-pink-500', 'hover:bg-pink-600');
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,61 @@
+<!-- /templates/cosmetics/product_detail.html -->
+{% extends 'base.html' %}
+{% block title %}{{ product.product_name }} - Beauty Recommender{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ product.product_name }}</h1>
+            <p class="text-xl text-gray-600 mb-4">{{ product.brand }}</p>
+            <p class="text-2xl font-bold text-pink-600 mb-6">₹{{ product.price }}</p>
+            
+            <div class="space-y-4 mb-6">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">Category</h2>
+                    <p class="text-gray-600">{{ product.category }} > {{ product.subcategory }}</p>
+                </div>
+                
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">Website</h2>
+                    <p class="text-gray-600">{{ product.website }} ({{ product.country }})</p>
+                </div>
+                
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">Product Link</h2>
+                    <a href="{{ product.title_href }}" target="_blank" class="text-blue-600 hover:underline">
+                        View on {{ product.website }}
+                    </a>
+                </div>
+                
+                {% if product.form or product.type or product.color %}
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">Product Details</h2>
+                    {% if product.form %}<p class="text-gray-600">Form: {{ product.form }}</p>{% endif %}
+                    {% if product.type %}<p class="text-gray-600">Type: {{ product.type }}</p>{% endif %}
+                    {% if product.color %}<p class="text-gray-600">Color: {{ product.color }}</p>{% endif %}
+                    {% if product.size %}<p class="text-gray-600">Size: {{ product.size }}</p>{% endif %}
+                </div>
+                {% endif %}
+                
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">Rating</h2>
+                    <div class="flex items-center">
+                        {% if product.rating %}
+                        <span class="text-yellow-400 text-xl">★</span>
+                        <span class="ml-1 text-xl text-gray-600">{{ product.rating }}</span>
+                        {% endif %}
+                        <span class="ml-2 text-gray-500">({{ product.noofratings|default:"0" }} reviews)</span>
+                    </div>
+                </div>
+            </div>
+            
+            {% if product.ingredients %}
+            <div class="border-t pt-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-2">Ingredients</h2>
+                <p class="text-gray-600">{{ product.ingredients }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

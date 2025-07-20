@@ -1,7 +1,5 @@
-#/products/management/commands/import_data.py
-
 from django.core.management.base import BaseCommand
-from products.models import SkincareProduct, MakeupProduct
+from products.models import SkincareProduct, CosmeticProduct
 import csv
 import os
 from django.conf import settings
@@ -85,34 +83,94 @@ class Command(BaseCommand):
         return success_count, error_count
 
     def import_makeup_products(self, file_path):
-        """Import makeup products from CSV."""
+        """Import makeup products from CSV with robust error handling."""
         success_count = 0
         error_count = 0
         
-        with open(file_path, 'r', encoding='utf-8-sig') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                try:
-                    # Skip empty rows
-                    if not any(row.values()):
-                        continue
-                        
-                    product = MakeupProduct(
-                        name=row.get('name', '').strip(),
-                        brand=row.get('brand', '').strip(),
-                        price=self.clean_price(row.get('price', '0')),
-                        rank=float(row.get('rank', 0)) if row.get('rank') else 0.0,
-                        skin_type=self.clean_skin_types(row.get('skin_type')),
-                        ingredients=row.get('ingredients', '').strip()
-                    )
-                    product.save()
-                    success_count += 1
-                except Exception as e:
-                    error_count += 1
-                    self.stdout.write(
-                        self.style.WARNING(f'Error importing makeup product: {str(e)}\nRow: {row}')
-                    )
+        # Try different encodings
+        encodings = ['latin-1', 'ISO-8859-1', 'cp1252', 'utf-8', 'utf-8-sig']
+        
+        for encoding in encodings:
+            try:
+                self.stdout.write(f"Trying encoding: {encoding}")
+                with open(file_path, 'r', encoding=encoding, errors='replace') as file:
+                    # Read the entire file first
+                    content = file.read()
                     
+                    # Create a file-like object from the content
+                    import io
+                    csv_file = io.StringIO(content)
+                    
+                    reader = csv.DictReader(csv_file)
+                    rows_processed = 0
+                    
+                    for row in reader:
+                        try:
+                            rows_processed += 1
+                            # Skip empty rows
+                            if not any(row.values()):
+                                continue
+                                
+                            # Handle empty or invalid rating field
+                            rating = row.get('rating', '0')
+                            if rating == '' or rating is None:
+                                rating = 0
+                            else:
+                                try:
+                                    rating = float(rating)
+                                except ValueError:
+                                    rating = 0
+                            
+                            # Handle price field
+                            price = row.get('price', '0')
+                            if price == '' or price is None:
+                                price = '0'
+                            
+                            product = CosmeticProduct(
+                                product_name=row.get('product_name', ''),
+                                website=row.get('website', ''),
+                                country=row.get('country', ''),
+                                category=row.get('category', ''),
+                                subcategory=row.get('subcategory', ''),
+                                title_href=row.get('title-href', ''),
+                                price=price,
+                                brand=row.get('brand', ''),
+                                ingredients=row.get('ingredients', ''),
+                                form=row.get('form', ''),
+                                type=row.get('type', ''),
+                                color=row.get('color', ''),
+                                size=row.get('size', '0'),
+                                rating=rating,
+                                noofratings=row.get('noofratings', '0')
+                            )
+                            product.save()
+                            success_count += 1
+                            
+                            # Print progress every 100 rows
+                            if success_count % 100 == 0:
+                                self.stdout.write(f"Successfully imported {success_count} products")
+                                
+                        except Exception as e:
+                            error_count += 1
+                            self.stdout.write(
+                                self.style.WARNING(f'Error importing makeup product: {str(e)}\nRow: {row}')
+                            )
+                            
+                    self.stdout.write(self.style.SUCCESS(
+                        f'Successfully read file with encoding: {encoding}. Processed {rows_processed} rows.'
+                    ))
+                    return success_count, error_count
+                            
+            except UnicodeDecodeError as e:
+                self.stdout.write(self.style.WARNING(f'Failed to read file with encoding: {encoding}. Error: {str(e)}'))
+                # Continue to the next encoding
+                continue
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f'Unexpected error with encoding {encoding}: {str(e)}'))
+                # Try the next encoding
+                continue
+        
+        self.stdout.write(self.style.ERROR('Could not read the file with any of the attempted encodings.'))            
         return success_count, error_count
 
     def handle(self, *args, **kwargs):
@@ -125,10 +183,10 @@ class Command(BaseCommand):
         ]
 
         possible_locations_makeup = [
-            'data/cosmetic.csv',
-            'cosmetic.csv',
-            os.path.join(settings.BASE_DIR, 'data', 'cosmetic.csv'),
-            os.path.join(settings.BASE_DIR, 'cosmetic.csv'),
+            'data/cosmeticdataset.csv',
+            'cosmeticdataset.csv',
+            os.path.join(settings.BASE_DIR, 'data', 'cosmeticdataset.csv'),
+            os.path.join(settings.BASE_DIR, 'cosmeticdataset.csv'),
         ]
 
         # Import skincare products

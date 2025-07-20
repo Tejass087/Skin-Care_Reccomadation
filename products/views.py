@@ -1,8 +1,8 @@
 # /products/views.py
 
 from django.shortcuts import render, get_object_or_404
-from .models import SkincareProduct, MakeupProduct
-from .forms import SkincareFilterForm, MakeupFilterForm
+from .models import SkincareProduct, CosmeticProduct
+from .forms import SkincareFilterForm, CosmeticFilterForm
 from .recommendation import ProductRecommender
 import pandas as pd
 from django import forms
@@ -16,53 +16,13 @@ def home(request):
 def initialize_recommender():
     """Fetch data from the database and prepare it for the recommender system."""
     skincare_products = list(SkincareProduct.objects.values())
-    makeup_products = list(MakeupProduct.objects.values())
+    cosmetic_products = list(CosmeticProduct.objects.values())
 
     # Convert to DataFrame and prepare data
     recommender.prepare_skincare_data(pd.DataFrame(skincare_products))
-    recommender.prepare_makeup_data(pd.DataFrame(makeup_products))
+    recommender.prepare_cosmetic_data(pd.DataFrame(cosmetic_products))
 
-class MakeupFilterForm(forms.Form):
-    SKIN_TYPE_CHOICES = [
-        ('', 'All Skin Types'),
-        ('oily', 'Oily'),
-        ('dry', 'Dry'),
-        ('combination', 'Combination'),
-        ('normal', 'Normal'),
-        ('sensitive', 'Sensitive'),
-    ]
 
-    PREFERENCES_CHOICES = [
-        ('', 'All Preferences'),
-        ('matte', 'Matte'),
-        ('dewy', 'Dewy'),
-        ('natural', 'Natural'),
-        ('full-coverage', 'Full Coverage'),
-        ('long-lasting', 'Long Lasting'),
-    ]
-
-    skin_type = forms.ChoiceField(
-        choices=SKIN_TYPE_CHOICES,
-        required=False,
-        widget=forms.Select(attrs={'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500'})
-    )
-
-    preferences = forms.ChoiceField(
-        choices=PREFERENCES_CHOICES,
-        required=False,
-        widget=forms.Select(attrs={'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500'})
-    )
-
-    min_rating = forms.FloatField(
-        required=False,
-        min_value=0,
-        max_value=5,
-        widget=forms.NumberInput(attrs={
-            'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500',
-            'placeholder': 'Minimum rating',
-            'step': '0.1'
-        })
-    )
 
 def skincare(request):
     """Handles skincare product recommendations based on user filters."""
@@ -85,35 +45,47 @@ def skincare_detail(request, product_id):
     product = get_object_or_404(SkincareProduct, id=product_id)
     return render(request, 'skincare/product_detail.html', {'product': product})
 
-def makeup(request):
-    """Handles makeup product recommendations based on user filters."""
-    form = MakeupFilterForm(request.GET)
-    products = MakeupProduct.objects.all()
-
+def cosmetics(request):
+    """Handles cosmetic product recommendations based on user filters."""
+    form = CosmeticFilterForm(request.GET)
+    products = CosmeticProduct.objects.all()
+    
     if form.is_valid():
-        skin_type = form.cleaned_data.get('skin_type')
-        preferences = form.cleaned_data.get('preferences')
+        category = form.cleaned_data.get('category')
+        subcategory = form.cleaned_data.get('subcategory')
+        brand = form.cleaned_data.get('brand')
         min_rating = form.cleaned_data.get('min_rating')
+        max_price = form.cleaned_data.get('max_price')
+        
+        # Apply filters directly
+        if category:
+            products = products.filter(category=category)
+        if subcategory:
+            products = products.filter(subcategory=subcategory)
+        if brand:
+            products = products.filter(brand__icontains=brand)
+        if min_rating is not None:
+            products = products.filter(rating__gte=min_rating)
+        if max_price is not None:
+            products = products.filter(price__lte=max_price)
+        
+        # If you want to use the recommender system instead:
+        # try:
+        #     recommended_products = recommender.get_cosmetic_recommendations(
+        #         category=category, subcategory=subcategory, brand=brand, 
+        #         min_rating=min_rating, max_price=max_price
+        #     )
+        #     products = CosmeticProduct.objects.filter(
+        #         id__in=[p['id'] for p in recommended_products.to_dict('records')]
+        #     )
+        # except Exception as e:
+        #     print(f"Error in cosmetic recommendations: {e}")
+    
+    return render(request, 'cosmetics/index.html', {'form': form, 'products': products})
 
-        if skin_type or preferences:
-            try:
-                recommended_products = recommender.get_makeup_recommendations(
-                    skin_type=skin_type,
-                    preferences=preferences,
-                    min_rating=min_rating
-                )
-                products = MakeupProduct.objects.filter(
-                    id__in=[p['id'] for p in recommended_products.to_dict('records')]
-                )
-            except Exception as e:
-                print(f"Error in makeup recommendations: {e}")
-
-    return render(request, 'makeup/index.html', {'form': form, 'products': products})
-
-def makeup_detail(request, product_id):
-    """Displays details for a specific makeup product."""
-    product = get_object_or_404(MakeupProduct, id=product_id)
-    context = {'product': product}
-    return render(request, 'makeup/product_detail.html', context)
+def cosmetic_detail(request, product_id):
+    """Displays details for a specific cosmetic product."""
+    product = get_object_or_404(CosmeticProduct, id=product_id)
+    return render(request, 'cosmetics/product_detail.html', {'product': product})
 
 
